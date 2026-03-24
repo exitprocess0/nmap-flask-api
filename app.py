@@ -17,12 +17,12 @@ app = Flask(__name__)
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
-    default_limits=["100 per day", "20 per hour"]
+    default_limits=["25000 per day", "500 per hour"]
 )
 
 API_KEY = os.environ.get('API_KEY')
 NMAP_SCRIPT = os.environ.get('NMAP_SCRIPT', './run-nmap.sh')
-MAX_TIME = int(os.environ.get('MAX_SCAN_TIME', 300))
+MAX_TIME = int(os.environ.get('MAX_SCAN_TIME', 3000))
 
 def require_auth(f):
     @wraps(f)
