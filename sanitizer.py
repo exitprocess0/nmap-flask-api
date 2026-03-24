@@ -3,17 +3,6 @@
 import re
 from typing import List, Tuple, Optional
 
-DANGEROUS_PATTERNS = [
-    r'[;&|]',
-    r'`',
-    r'\$\(',
-    r'\${'
-    r'[<>]',
-    r'\\x[0-9a-fA-F]',
-    r'\n',
-    r'\r',
-]
-
 # IPV4, CIDR, IPV6 and hostname sanitize regex that doesn't work
 TARGET_PATTERN = re.compile(
     r'^('
@@ -24,6 +13,8 @@ TARGET_PATTERN = re.compile(
     r')$'
 )
 
+CHAR_YOU_DONT_WANT = ["|", "&", "/", "\n"]
+
 # Allowed bool flags
 BOOL_FLAGS = {
     '-v', '-vv', '-vvv',
@@ -31,40 +22,34 @@ BOOL_FLAGS = {
     '-O', '-A', '-Pn',
     '-n', '-r',
     '-T0', '-T1', '-T2', '-T3', '-T4', '-T5',
+    '-sL', 'sA', 'sW', 'sM', '-sn', '-F', '-6',
 }
 
 
 ARG_FLAGS = {
     '-p': lambda x: re.match(r'^[TU:0-9,\-]+$', x) and len(x) < 100,
-    '-e': lambda x: re.match(r'^[a-z0-9]+$', x),
-    '-S': lambda x: re.match(r'^(\d{1,3}\.){3}\d{1,3}$', x),
-    '-g': lambda x: x.isdigit() and 0 < int(x) <= 65535,
     '--script': lambda x: all(
         s.strip() in ALLOWED_SCRIPTS or s.strip() in ALLOWED_CATEGORIES
         for s in x.split(',')
     ),
     '--script-args': lambda x: len(x) < 500 and not any(c in x for c in ';|&`$(){}<>'),
-    '--host-timeout': lambda x: re.match(r'^\d+[smhd]?$', x),
-    '--max-retries': lambda x: x.isdigit() and int(x) >= 0,
-    '-oN': lambda x: re.match(r'^[\w\-\.]+$', x),
-    '-oX': lambda x: re.match(r'^[\w\-\.]+$', x),
-    '-oG': lambda x: re.match(r'^[\w\-\.]+$', x),
 }
 
 ALLOWED_SCRIPTS = {
     'vuln', 'vulners', 'banner', 'http-title', 'http-headers',
     'http-methods', 'http-enum', 'ssl-cert', 'ssl-enum-ciphers',
     'ssh-hostkey', 'dns-brute', 'ftp-anon', 'smb-os-discovery',
-    'mysql-info', 'snmp-info', 'telnet-brute',
+    'mysql-info', 'snmp-info', 'telnet-brute', 'whois-domain', 'whois-ip',
+    'dns-fuzz', 'address-info', 'bitcoin-getaddr', 'auth-spoof', 'ssh2-enum-algos',
+    'ssh-run', 'ssh-auth-methods', 'sshv1',
 }
 
 ALLOWED_CATEGORIES = {'safe', 'intrusive', 'discovery', 'vuln', 'auth'}
 
 
 def contains_dangerous(content: str) -> bool:
-    """Check for command injection attempts."""
-    for pattern in DANGEROUS_PATTERNS:
-        if re.search(pattern, content):
+    for stuff in content:
+        if stuff == CHAR_YOU_DONT_WANT:
             return True
     return False
 
