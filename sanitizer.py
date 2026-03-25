@@ -49,7 +49,7 @@ ALLOWED_CATEGORIES = {'safe', 'intrusive', 'discovery', 'vuln', 'auth'}
 
 def contains_dangerous(content: str) -> bool:
     for stuff in content:
-        if stuff == CHAR_YOU_DONT_WANT:
+        if stuff in CHAR_YOU_DONT_WANT:
             return True
     return False
 
