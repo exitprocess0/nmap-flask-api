@@ -53,7 +53,7 @@ def health():
 
 
 @app.route('/scan', methods=['POST'])
-@limiter.limit("10 per hour")
+@limiter.limit("700 per hour")
 @require_auth
 def scan():
     
