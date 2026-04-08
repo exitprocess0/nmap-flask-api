@@ -13,7 +13,7 @@ TARGET_PATTERN = re.compile(
     r')$'
 )
 
-CHAR_YOU_DONT_WANT = ["|", "&", "/", "\n", ";", "<", ">", r"\"]
+CHAR_YOU_DONT_WANT = ["|", "&", "/", "\n", ";", "<", ">", r"\\"]
 
 # Allowed bool flags
 BOOL_FLAGS = {
